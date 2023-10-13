@@ -14,6 +14,7 @@ bowler_data = pd.read_csv('datasets/bowler_data.csv')
 batter_attributes = ['strike_rate', 'sixes', 'fours']
 bowler_attributes = ['total_wickets', 'bowled', 'caught', 'economy_rate']
 
+
 scaler_batter = MinMaxScaler()
 scaler_bowler = MinMaxScaler()
 
@@ -44,8 +45,9 @@ elif player_type == 'Bowler':
         'Wicket-Taker': st.sidebar.slider("Wicket-Taker Importance", 0.0, 1.0, 0.5),
         'Uprooter': st.sidebar.slider("Uprooter Importance", 0.0, 1.0, 0.5),
         'Fielder-Dependent': st.sidebar.slider("Fielder-Dependent Importance", 0.0, 1.0, 0.5),
-        'Economizer': st.sidebar.slider("Economizer Importance", 0.0, 1.0, 0.5),
+        'Economizer': 1-st.sidebar.slider("Economizer Importance", 0.0, 1.0, 0.5),
     }
+
     knn_model = knn_bowler
     data = bowler_data
     normalized_data = bowler_data_normalized
