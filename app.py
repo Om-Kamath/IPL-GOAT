@@ -31,29 +31,32 @@ with col1:
                 'Blazing Batsman': st.slider("Blazing Batsman Importance", 0.0, 1.0, 0.5, help="Values half-centuries and centuries made by the player"),
                 'Thunderous Titan': st.slider("Thunderous Titan Importance", 0.0, 1.0, 0.5, help="Rewards boundaries scored"), 
                 'Consistent Conqueror': st.slider("Consistent Conqueror Importance", 0.0, 1.0, 0.5, help="Encourages a higher strike-rate and average score per innings while penalizing losing one's wicket"),
+                'Accolades': st.checkbox("Accolades Boost", help="Rewards awards won by the player like Player of the Match and Orange Cap")
             }
             
             # Define the metrics and their respective weights
             
 
             # Allow users to select a range for innings
-            innings = st.slider("Number of Innings", 1, 200, (10,70), help="The minimum and the maximum no. of innings played by the player")  # (min_value, max_value, (default_min_range, default_max_range))
+            innings = st.slider("Number of Innings", 1, 200, (50,200), help="The minimum and the maximum no. of innings played by the player")  # (min_value, max_value, (default_min_range, default_max_range))
 
             num_recommendations = st.slider("Number of Recommendations", 1, 10, 5, help="No. of recommendations you want the application to generate")
 
-            accolades_boost = st.checkbox("Accolades Boost")
+            # accolades_boost = st.checkbox("Accolades Boost", help="Boosts awards won by the player like Player of the Match and Orange Cap")
             
-            if not accolades_boost:
+            if not batter_weights['Accolades']:
                 batter_metric_weights = {
                     'Blazing Batsman': {'total_100s': 0.7, 'total_50s': 0.4},
                     'Thunderous Titan': {'sixes': 0.6, 'fours': 0.4},
                     'Consistent Conqueror': {'average': 0.2, 'avg_strike_rate': 0.5, 'outs': -0.3},
+                    'Accolades': {'orange_caps' : 0.1, "motm_count" : 0.1}
                 }
             else:
                 batter_metric_weights = {
-                    'Blazing Batsman': {'avg_strike_rate': 0.5, 'outs': -0.3, 'total_50s': 0.2},
+                    'Blazing Batsman': {'total_100s': 0.7, 'total_50s': 0.4},
                     'Thunderous Titan': {'sixes': 0.6, 'fours': 0.4},
-                    'Consistent Conqueror': {'average': 0.35, 'total_100s': 0.4, 'orange_caps' : 0.4, "motm_count" : 0.4},
+                    'Consistent Conqueror': {'average': 0.2, 'avg_strike_rate': 0.5, 'outs': -0.3},
+                    'Accolades': {'orange_caps' : 0.7, "motm_count" : 0.5}
                 }
 
 
@@ -75,27 +78,29 @@ with col1:
                 'Mystical Magician': st.slider("Mystical Magician Importance", 0.0, 1.0, 0.5, help="Encourages lower economy and rewards wickets taken via clean bowled"),
                 'Tenacious Terminator': st.slider("Tenacious Terminator Importance", 0.0, 1.0, 0.5, help="Rewards higher wicket count and penalizes total runs given up"),
                 'Consistent Challenger': st.slider("Consistent Challenger Importance", 0.0, 1.0, 0.5, help="Penalizes wides and no-balls and encourages discipline"),
+                'Accolades': st.checkbox("Accolades Boost", help="Rewards awards won by the player like Player of the Match and Purple Cap")
             }
 
             # Allow users to select a range for innings
-            innings = st.slider("Number of Innings", 1, 200,(10,50))  # (min_value, max_value, (default_min_range, default_max_range))
+            innings = st.slider("Number of Innings", 1, 200,(50,200))  # (min_value, max_value, (default_min_range, default_max_range))
 
             num_recommendations = st.slider("Number of Recommendations", 1, 10, 5)
-            accolades_boost = st.checkbox("Accolades Boost")
             
             
             # Define the metrics and their respective weights
-            if not accolades_boost:
+            if not bowler_weights['Accolades']:
                 bowler_metric_weights = {
                     'Mystical Magician': {'economy': -0.3, 'bowled': 0.4},
-                    'Tenacious Terminator': {'total_wickets': 0.3, 'total_runs_conceded': -0.3, "caught": 0.2, "stumped": 0.2, "lbw": 0.3},
+                    'Tenacious Terminator': {'total_wickets': 0.3, 'total_runs_conceded': -0.1, "caught": 0.3, "stumped": 0.1, "lbw": 0.2},
                     'Consistent Challenger': {'total_wides': -0.3, 'total_no_balls': -0.3, 'total_legal_deliveries': 0.4},
+                    'Accolades': {'purple_caps' : 0.1, "motm_count" : 0.1}
                 }
             else:
                 bowler_metric_weights = {
                     'Mystical Magician': {'economy': -0.3, 'bowled': 0.4},
                     'Tenacious Terminator': {'total_wickets': 0.3, 'total_runs_conceded': -0.1, "caught": 0.3, "stumped": 0.1, "lbw": 0.2},
-                    'Consistent Challenger': {'total_wides': -0.2, 'total_no_balls': -0.2, 'total_legal_deliveries': 0.4, 'purple_caps': 0.4, 'motm_count': 0.4},
+                    'Consistent Challenger': {'total_wides': -0.3, 'total_no_balls': -0.3, 'total_legal_deliveries': 0.4},
+                    'Accolades': {'purple_caps' : 0.7, "motm_count" : 0.5}
                 }
 
 
