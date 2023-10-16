@@ -38,9 +38,9 @@ with col1:
             
 
             # Allow users to select a range for innings
-            innings = st.slider("Number of Innings", 1, 200, (50,200), help="The minimum and the maximum no. of innings played by the player")  # (min_value, max_value, (default_min_range, default_max_range))
+            innings = st.slider("Number of Innings", 1, 200, (50,200))  # (min_value, max_value, (default_min_range, default_max_range))
 
-            num_recommendations = st.slider("Number of Recommendations", 1, 10, 5, help="No. of recommendations you want the application to generate")
+            num_recommendations = st.slider("Number of Recommendations", 1, 10, 5)
 
             # accolades_boost = st.checkbox("Accolades Boost", help="Boosts awards won by the player like Player of the Match and Orange Cap")
             
