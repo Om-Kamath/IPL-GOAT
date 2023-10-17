@@ -56,7 +56,7 @@ with col1:
                     'Blazing Batsman': {'total_100s': 0.7, 'total_50s': 0.4},
                     'Thunderous Titan': {'sixes': 0.6, 'fours': 0.4},
                     'Consistent Conqueror': {'average': 0.2, 'avg_strike_rate': 0.5, 'outs': -0.3},
-                    'Accolades': {'orange_caps' : 0.7, "motm_count" : 0.5}
+                    'Accolades': {'orange_caps' : 0.9, "motm_count" : 0.5}
                 }
 
 
@@ -69,9 +69,12 @@ with col1:
             for category in batter_metric_weights.keys():
                 filtered_batter_data[category] = filtered_batter_data.apply(
                     lambda row: np.dot(row[batter_metric_weights[category].keys()], list(batter_metric_weights[category].values())), axis=1)
-                filtered_batter_data[category] = filtered_batter_data[category] * batter_weights[category]
+                filtered_batter_data[category] = round(filtered_batter_data[category] * batter_weights[category], 2)
 
-            filtered_batter_data['score'] = filtered_batter_data[list(batter_weights.keys())].sum(axis=1)
+            filtered_batter_data = filtered_batter_data.round({'avg_strike_rate': 2})
+            filtered_batter_data['Total Score'] = filtered_batter_data[list(batter_weights.keys())].sum(axis=1)
+            filtered_batter_data = filtered_batter_data.rename(columns={"batter": "Player Name"})
+            
 
         elif player_type == "Bowler":
             bowler_weights = {
@@ -91,16 +94,16 @@ with col1:
             if not bowler_weights['Accolades']:
                 bowler_metric_weights = {
                     'Mystical Magician': {'economy': -0.3, 'bowled': 0.4},
-                    'Tenacious Terminator': {'total_wickets': 0.3, 'total_runs_conceded': -0.1, "caught": 0.3, "stumped": 0.1, "lbw": 0.2},
+                    'Tenacious Terminator': {'total_wickets': 0.3, 'avg_runs_conceded': -0.3, "caught": 0.3, "stumped": 0.1, "lbw": 0.2},
                     'Consistent Challenger': {'total_wides': -0.3, 'total_no_balls': -0.3, 'total_legal_deliveries': 0.4},
                     'Accolades': {'purple_caps' : 0.1, "motm_count" : 0.1}
                 }
             else:
                 bowler_metric_weights = {
                     'Mystical Magician': {'economy': -0.3, 'bowled': 0.4},
-                    'Tenacious Terminator': {'total_wickets': 0.3, 'total_runs_conceded': -0.1, "caught": 0.3, "stumped": 0.1, "lbw": 0.2},
+                    'Tenacious Terminator': {'total_wickets': 0.3, 'avg_runs_conceded': -0.3, "caught": 0.3, "stumped": 0.1, "lbw": 0.2},
                     'Consistent Challenger': {'total_wides': -0.3, 'total_no_balls': -0.3, 'total_legal_deliveries': 0.4},
-                    'Accolades': {'purple_caps' : 0.7, "motm_count" : 0.5}
+                    'Accolades': {'purple_caps' : 0.9, "motm_count" : 0.5}
                 }
 
 
@@ -113,9 +116,12 @@ with col1:
             for category in bowler_metric_weights.keys():
                 filtered_bowler_data[category] = filtered_bowler_data.apply(
                     lambda row: np.dot(row[bowler_metric_weights[category].keys()], list(bowler_metric_weights[category].values())), axis=1)
-                filtered_bowler_data[category] = filtered_bowler_data[category] * bowler_weights[category]
+                filtered_bowler_data[category] = round(filtered_bowler_data[category] * bowler_weights[category], 2)
 
-            filtered_bowler_data['score'] = filtered_bowler_data[list(bowler_weights.keys())].sum(axis=1)
+
+            filtered_bowler_data = filtered_bowler_data.round({'economy': 2})
+            filtered_bowler_data['Total Score'] = filtered_bowler_data[list(bowler_weights.keys())].sum(axis=1)
+            filtered_bowler_data = filtered_bowler_data.rename(columns={"bowler": "Player Name"})
             
 
         submit = st.form_submit_button("Get Recommendations")
@@ -126,38 +132,38 @@ with col2:
     if submit:
         if player_type == "Batter": 
             # batter,innings,total_runs,total_balls,outs,total_50s,total_100s,avg_strike_rate,motm_count,orange_caps,average,fours,sixes
-            recommended_players = filtered_batter_data.nlargest(num_recommendations, 'score')
-            st.dataframe(recommended_players[["batter", "Blazing Batsman", "Thunderous Titan", "Consistent Conqueror", "score"]], hide_index=True)
-           
+            recommended_players = filtered_batter_data.nlargest(num_recommendations, 'Total Score')
+            st.dataframe(recommended_players[["Player Name", "Blazing Batsman", "Thunderous Titan", "Consistent Conqueror", "Accolades", "Total Score"]], hide_index=True)
+
             # Visualization
             fig = px.scatter_3d(filtered_batter_data, x='Blazing Batsman', y='Thunderous Titan', z='Consistent Conqueror',
-                                color='score', hover_name='batter',
-                                hover_data={"Blazing Batsman": False, "Thunderous Titan": False, "Consistent Conqueror": False,'score': False, 'total_runs': True, 'avg_strike_rate': True, 'fours': True, 'sixes': True})
+                                color='Total Score', hover_name='Player Name',
+                                hover_data={"Blazing Batsman": False, "Thunderous Titan": False, "Consistent Conqueror": False,'Total Score': False, 'total_runs': True, 'avg_strike_rate': True, 'fours': True, 'sixes': True})
 
             # Highlight recommended players
             for i, player in recommended_players.iterrows():
                 fig.add_trace(go.Scatter3d(x=[player['Blazing Batsman']], y=[player['Thunderous Titan']], z=[player['Consistent Conqueror']],
                                             mode='markers', marker=dict(color='red', size=10), showlegend=False,
-                                            hovertemplate=f"<b>{player['batter']}</b><br>Total Runs: {player['total_runs']}<br>Strike Rate: {player['avg_strike_rate']:.2f}<br>Fours: {player['fours']}<br>Sixes: {player['sixes']}<extra></extra>"))
+                                            hovertemplate=f"<b>{player['Player Name']}</b><br>Total Runs: {player['total_runs']}<br>Strike Rate: {player['avg_strike_rate']:.2f}<br>Fours: {player['fours']}<br>Sixes: {player['sixes']}<extra></extra>"))
 
             fig.update_layout(title="3D Visualization", scene=dict(xaxis_title='Blazing Batsman', yaxis_title='Thunderous Titan', zaxis_title='Consistent Conqueror'))
             st.plotly_chart(fig,__loader__ = "hide")
         else:
 
             # bowler,matches,total_runs_conceded,total_balls_bowled,total_illegal_deliveries,total_wides,total_no_balls,total_legal_deliveries,total_wickets,bowled,lbw,caught,stumped,others,total_overs,economy,purple_caps,motm_count
-            recommended_players = filtered_bowler_data.nlargest(num_recommendations, 'score')
-            st.dataframe(recommended_players[["bowler", "Mystical Magician", "Tenacious Terminator", "Consistent Challenger", "score"]], hide_index=True)
+            recommended_players = filtered_bowler_data.nlargest(num_recommendations, 'Total Score')
+            st.dataframe(recommended_players[["Player Name", "Mystical Magician", "Tenacious Terminator", "Consistent Challenger", "Accolades", "Total Score"]], hide_index=True)
 
             # Visualization
             fig = px.scatter_3d(filtered_bowler_data, x='Mystical Magician', y='Tenacious Terminator', z='Consistent Challenger',
-                                color='score', hover_name='bowler',
-                                hover_data={'Mystical Magician': False,'Tenacious Terminator': False,'Consistent Challenger': False,"score": False,'total_wickets': True, 'matches': True, 'economy': True})
+                                color='Total Score', hover_name='Player Name',
+                                hover_data={'Mystical Magician': False,'Tenacious Terminator': False,'Consistent Challenger': False,"Total Score": False,'total_wickets': True, 'matches': True, 'economy': True})
 
             # Highlight recommended players
             for i, player in recommended_players.iterrows():
                 fig.add_trace(go.Scatter3d(x=[player['Mystical Magician']], y=[player['Tenacious Terminator']], z=[player['Consistent Challenger']],
                                             mode='markers', marker=dict(color='red', size=10), showlegend=False,
-                                            hovertemplate=f"<b>{player['bowler']}</b><br>Economy: {player['economy']:.2f}<br>Total Wickets: {player['total_wickets']:.2f}<br>Total Matches: {player['matches']:.2f}<extra></extra>"))
+                                            hovertemplate=f"<b>{player['Player Name']}</b><br>Economy: {player['economy']:.2f}<br>Total Wickets: {player['total_wickets']:.2f}<br>Total Matches: {player['matches']:.2f}<extra></extra>"))
 
             fig.update_layout(title="3D Visualization", scene=dict(xaxis_title='Mystical Magician', yaxis_title='Tenacious Terminator', zaxis_title='Consistent Challenger'))
             st.plotly_chart(fig)
